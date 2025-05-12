@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  poker-front:
+    build:
+      context: ./front-poker
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+      - "5173:5173"
+    container_name: poker-front
+    depends_on:
+      - poker-api
+    networks:
+      - poker_app
+    volumes:
+      - './front-poker:/app'
+
+  poker-api:
+    build:
+      context: ./back-poker-API
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    container_name: poker-api
+    depends_on:
+      - poker-database
+    networks:
+      - poker_app
+    volumes:
+      - './back-poker-API:/app'
+    environment:
+      - DB_HOST=poker-database
+      - DB_PORT=3306
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+
+  poker-database:
+    image: 'mysql/mysql-server:8.0'
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'poker_data:/var/lib/mysql'
+    networks:
+      - poker_app
+    container_name: poker-database
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - "-p${DB_PASSWORD}"
+      retries: 3
+      timeout: 5s
+
+networks:
+  poker_app:
+    driver: bridge
+
+volumes:
+  poker_data:
+    driver: local
+    
