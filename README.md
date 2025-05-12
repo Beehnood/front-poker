@@ -24,7 +24,7 @@ Rejoindre une table de poker
 Démarrer une partie de Texas Hold'em
 Jouer le premier tour
 Tests :
-Ce n'est pas prévu encore
+Ce n'est pas prévu encore, sinon : 
 Au moins deux tests unitaires par membre d'équipe
 Au moins deux tests end-to-end (E2E) par membre d'équipe
 
