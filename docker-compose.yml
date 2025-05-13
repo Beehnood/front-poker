@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   poker-front:
     build:
-      context: ./front-poker
+      context: ./front-poker-api
       dockerfile: Dockerfile
     ports:
       - "3000:80"
@@ -14,57 +12,23 @@ services:
     networks:
       - poker_app
     volumes:
-      - './front-poker:/app'
+      - './front-poker-api:/app'
 
   poker-api:
     build:
-      context: ./back-poker-API
+      context: ./back-poker-api
       dockerfile: Dockerfile
     ports:
       - "3001:3000"
     container_name: poker-api
-    depends_on:
-      - poker-database
     networks:
       - poker_app
     volumes:
-      - './back-poker-API:/app'
+      - './back-poker-api:/app'
     environment:
-      - DB_HOST=poker-database
-      - DB_PORT=3306
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_DATABASE=${DB_DATABASE}
-
-  poker-database:
-    image: 'mysql/mysql-server:8.0'
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-      MYSQL_DATABASE: '${DB_DATABASE}'
-      MYSQL_USER: '${DB_USERNAME}'
-      MYSQL_PASSWORD: '${DB_PASSWORD}'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
-    volumes:
-      - 'poker_data:/var/lib/mysql'
-    networks:
-      - poker_app
-    container_name: poker-database
-    healthcheck:
-      test:
-        - CMD
-        - mysqladmin
-        - ping
-        - "-p${DB_PASSWORD}"
-      retries: 3
-      timeout: 5s
+      - MONGODB_URI=mongodb+srv://App-Web:AppWeb1234@teampokerapi-front.4l5gbej.mongodb.net/?retryWrites=true&w=majority&appName=TeamPokerApi-Front
+    command: sh -c "npm run start:prod"
 
 networks:
   poker_app:
-    driver: bridge
-
-volumes:
-  poker_data:
-    driver: local
-    
+    driver: bridge  
