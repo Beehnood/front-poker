@@ -3,27 +3,18 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TablesModule } from './tables/tables.module';
 import { PlayersModule } from './players/players.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Player } from './entities/player.entity';
-import { TablesService } from './tables/tables.service';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/AuthGuard';
 import { DeckService } from './deck/deck.service';
 
-
 @Module({
-  imports: [PlayersModule, TablesModule,
-    TypeOrmModule.forRoot({
-      type: "sqlite",
-      database: "db.sqlite",
-      entities: [Player],
-      synchronize: true
-    }),
+  imports: [
+    MongooseModule.forRoot('mongodb://localhost:27017/your_db_name'), // remplace par ton URI MongoDB
+    PlayersModule,
+    TablesModule,
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TablesService,
-    DeckService],
+  providers: [AppService, DeckService],
 })
-export class AppModule { }
+export class AppModule {}

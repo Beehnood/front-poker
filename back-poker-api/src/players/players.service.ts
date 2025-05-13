@@ -1,115 +1,125 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Player } from 'src/entities/player.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Table } from 'src/tables/entities/table.entity';
+import { PlayerDocument, Player } from './schemas/players.schema'; // 👈 ton modèle Mongoose
 
 @Injectable()
 export class PlayersService {
-  constructor(@InjectRepository(Player)
-  private repo: Repository<Player>,
+  constructor(
+    @InjectModel('Player') private playerModel: Model<PlayerDocument>,
     private jwtService: JwtService
-  ) { }
+  ) {}
 
   async create(owner: any) {
-    let user = await this.repo.findOne({ where: { username: owner.username } });
-    if (user != undefined) {
+    const existingUser = await this.playerModel.findOne({ username: owner.username });
+    if (existingUser) {
       throw new BadRequestException("User already exists");
     }
+
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(owner.password, salt);
 
-    const newUser = this.repo.create({ username: owner.username, password: hashedPassword, state: "" });
-    const savedUser = await this.repo.save(newUser);
-    if (!savedUser) {
-      throw new BadRequestException("User creation failed");
-    }
+    const newUser = new this.playerModel({
+      username: owner.username,
+      password: hashedPassword,
+      state: '',
+      money: 1000, // valeur initiale par défaut ?
+    });
 
-    const payload = { name: newUser.username, sub: newUser.id };
+    const savedUser = await newUser.save();
+    if (!savedUser) throw new BadRequestException("User creation failed");
+
+    const payload = { name: savedUser.username, sub: savedUser.id };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  findAll() {
-    return this.repo.find();
+  async findAll() {
+    return this.playerModel.find().exec();
   }
 
-  findByUsername(username: string) {
-    return this.repo.findOne({ where: { username: username } });
+  async findByUsername(username: string) {
+    return this.playerModel.findOne({ username }).exec();
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({ where: { "id": id } });
+  async findOne(id: number | string) {
+    return this.playerModel.findOne({ id }).exec();
   }
 
   getActions() {
     return [
-      { "name": "fold", "description": "description fold" },
-      { "name": "call", "description": "description call" },
-      { "name": "raise", "description": "description raise" },
+      { name: "fold", description: "description fold" },
+      { name: "call", description: "description call" },
+      { name: "raise", description: "description raise" },
     ];
   }
 
   async setAction(name: string, id: number) {
-    const user = await this.repo.findOne({ where: { id: id } });
-    if (user == undefined) {
+    const player = await this.playerModel.findOne({ id });
+    if (!player) {
       throw new BadRequestException("User not found");
     }
-    user.state = name;
-    // Supprimer la sauvegarde pour ne pas persister le state dynamique
-    // this.repo.save(user);
+    player.state = name;
+    // ne pas sauvegarder ici car l'état est temporaire
   }
 
-  async createAIPlayer(name: string, table: Table): Promise<Player> {
-    // Créer directement une instance de Player sans passer par le repository
-    const player = new Player();
-    player.username = name;
-    player.isAI = true;
-    // Générer un ID unique
+  async createAIPlayer(name: string, table: Table): Promise<any> {
     let idExists = true;
+    let newId: number;
+
     while (idExists) {
-      const newId = Math.floor(Math.random() * 100); // Generate a random ID
-      const existingPlayer = await this.repo.findOne({ where: { id: newId } });
-      const existingAIPlayer = table ? table.players.find(player => player.id === newId && player.isAI) : undefined;
-      if (!existingPlayer && !existingAIPlayer) {
-        player.id = newId;
-        idExists = false;
-      }
-      if (!existingPlayer) {
-        player.id = newId;
+      newId = Math.floor(Math.random() * 100);
+      const existsInDB = await this.playerModel.findOne({ id: newId });
+      const existsInTable = table.players.find(p => p.id === newId && p.isAI);
+      if (!existsInDB && !existsInTable) {
         idExists = false;
       }
     }
 
-    return player;
+    return {
+      id: newId,
+      username: name,
+      isAI: true,
+      hand: [],
+      bet: 0,
+      money: 1000,
+      state: "",
+    };
   }
 
-  async createPlayer(playerId: number): Promise<Player> {
-    const player = new Player();
-    const playerData = await this.repo.findOne({ where: { id: playerId } });
-    player.id = playerId;
-    if (!playerData) {
-      throw new BadRequestException("Player not found");
-    }
-    player.username = playerData.username;
-    player.money = playerData.money;
-    return player;
+  async createPlayer(playerId: number): Promise<any> {
+    const playerData = await this.playerModel.findOne({ id: playerId });
+    if (!playerData) throw new BadRequestException("Player not found");
+
+    return {
+      id: playerData.id,
+      username: playerData.username,
+      money: playerData.money,
+      isAI: false,
+      hand: [],
+      bet: 0,
+      state: "",
+    };
   }
 
   async motherlode(playerId: number) {
-    let player = await this.repo.findOne({ where: { id: playerId } });
+    const player = await this.playerModel.findOne({ id: playerId });
     if (player) {
       player.money += 1000;
-      return this.repo.save(player);
+      return player.save();
     }
     return;
   }
 
-  resetPlayer(player: Player) {
+  async updateMoney(playerId: number, newAmount: number) {
+    await this.playerModel.updateOne({ id: playerId }, { $set: { money: newAmount } });
+  }
+
+  resetPlayer(player: any) {
     player.hand = [];
     player.state = "";
     player.tableId = undefined;
