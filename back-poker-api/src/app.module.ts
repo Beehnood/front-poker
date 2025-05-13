@@ -9,7 +9,7 @@ import { DeckService } from './deck/deck.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/your_db_name'), // remplace par ton URI MongoDB
+    MongooseModule.forRoot(''), // remplace par ton URI MongoDB
     PlayersModule,
     TablesModule,
     AuthModule,
