@@ -5,12 +5,15 @@ const MenuBureau = () => {
     return (
         <header className="menu-bureau-header">
             <div className="menu-bureau-logo">
-                <h1>Casino Royal</h1>
+                <h1><a href="/">CasinoRoyal</a></h1>
             </div>
             <nav className="menu-bureau-nav">
                 <ul>
                     <li>
                         <a href='/'>Accueil</a>
+                    </li>
+                    <li>
+                        <a href='/game'>Jouer</a>
                     </li>
                     <li>
                         <a href='/connexion'>Profil</a>
