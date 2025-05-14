@@ -156,6 +156,20 @@ html, body {
     color: #fff;
 }
 
+.container.rules .content{
+    inset: 0;
+    padding: 40px 80px;
+}
+.container.rules .content ul{
+    list-style: none;
+}
+.container.rules .content p, .container.rules .content ul{
+    padding: 0 0 10px 10px;
+}
+.container.rules .content ol{
+    padding: 0 0 10px 25px;
+}
+
 .container .content {
     position: absolute;
     display: flex;
