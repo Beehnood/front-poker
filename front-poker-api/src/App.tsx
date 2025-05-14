@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './Layout';
+import Accueil from './pages/Accueil';
+import Connexion from './pages/Connexion';
+import Inscription from './pages/Inscription';
+import Profile from './pages/Profile';
+import ParametreJeu from './pages/ParametreJeu';
+import Stats from './pages/Stats';
+import Game from './pages/Game';
+import Partie from './pages/Partie';
+// import Partie from './pages/Partie';
+import TableJeu from './pages/TableDeJeu'
+// import ParametreUtilisateur from './pages/ParametreUtilisateur';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/connexion" element={<Connexion />} />
+          <Route path="/inscription" element={<Inscription />} />
+          <Route path="/inscription" element={<Inscription />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/parametre_jeu" element={<ParametreJeu />} />
+          <Route path="/stats" element={<Stats />} />
+          <Route path="/game" element={<Game />} />
+          <Route path="/partie" element={<Partie />} />
+          <Route path="/partie/:tableId" element={<Partie />} />
+          <Route path="/table" element={<TableJeu />} />
+          {/* <Route path="/parametre_utilisateur" element={<ParametreUtilisateur />} /> */}
+        </Routes>
+      </Layout>
+    </Router>
+  );
 }
 
-export default App
+export default App;
