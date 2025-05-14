@@ -65,7 +65,7 @@ env
 
 APP_PORT=80
 VITE_PORT=5173
-MONGODB_URI=mongodb+srv://App-Web:AppWeb1234@teampokerapi-front.4l5gbej.mongodb.net/?retryWrites=true&w=majority&appName=TeamPokerApi-Front
+MONGODB_URI=...
 WWWUSER=1000
 WWWGROUP=1000
 

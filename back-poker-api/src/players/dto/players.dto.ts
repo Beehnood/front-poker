@@ -1,41 +1,62 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Card } from 'src/tables/entities/card.entity';
-import { Player } from 'src/entities/player.entity';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsBoolean,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-
-
+import { Card } from 'src/tables/entities/card.entity';
 
 export class PlayerDto {
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    username: string;
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
 
-    // @IsString()
-    // @IsNotEmpty()
-    // @ApiProperty()
-    // @IsString()
-    // @IsNotEmpty()
-    // password: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  username: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    @ApiProperty()
-    money: number;
+  @ApiProperty({ default: 1000 })
+  @IsNumber()
+  @IsNotEmpty()
+  money: number = 1000;
 
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    state: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  state: string;
 
-    @IsString()
-    @ApiProperty()
-    hand?: Card[];
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  isAI: boolean = false;
 
-    constructor(partial: Partial<PlayerDto>) {
-        Object.assign(this, partial);
-    }
+  @ApiProperty({ type: [Card] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Card)
+  hand: Card[] = [];
 
+  @ApiProperty({ default: 0 })
+  @IsNumber()
+  bet: number = 0;
 
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  table: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
+
+  constructor(partial: Partial<PlayerDto>) {
+    Object.assign(this, partial);
+  }
 }

@@ -2,9 +2,9 @@ import { PartialType } from '@nestjs/mapped-types';
 import { CreateTableDto } from './create-table.dto';
 import { IsNumber, IsString, IsNotEmpty } from 'class-validator';
 import { Deck } from '../entities/deck.entity';
-import { Player } from 'src/entities/player.entity';
 import { Card } from '../entities/card.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { PlayerDto } from 'src/players/dto/players.dto';
 
 export class UpdateTableDto extends PartialType(CreateTableDto) {
 
@@ -15,7 +15,7 @@ export class UpdateTableDto extends PartialType(CreateTableDto) {
     @IsNotEmpty()
     @IsString()
     @ApiProperty({ default: [], isArray: true})
-    players: Player[] = [];
+    players: PlayerDto[] = [];
 
     @IsString()
     @IsNotEmpty()

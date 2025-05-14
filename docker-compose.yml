@@ -26,7 +26,7 @@ services:
     volumes:
       - './back-poker-api:/app'
     environment:
-      - MONGODB_URI=mongodb+srv://App-Web:AppWeb1234@teampokerapi-front.4l5gbej.mongodb.net/?retryWrites=true&w=majority&appName=TeamPokerApi-Front
+      - MONGODB_URI=${MONGODB_URI}
     command: sh -c "npm run start:prod"
 
 networks:

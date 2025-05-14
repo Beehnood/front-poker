@@ -3,20 +3,23 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Table } from 'src/tables/entities/table.entity';
-import { PlayerDocument, Player } from './schemas/players.schema'; // 👈 ton modèle Mongoose
+import { PlayerDocument } from './player.schema';
+import { Table } from 'src/tables/entities/table.entity'; // 👈 Corrigé : bonne Table
+import { PlayerDto } from 'src/players/dto/players.dto';
 
 @Injectable()
 export class PlayersService {
   constructor(
     @InjectModel('Player') private playerModel: Model<PlayerDocument>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
-  async create(owner: any) {
-    const existingUser = await this.playerModel.findOne({ username: owner.username });
+  async create(owner: { username: string; password: string }) {
+    const existingUser = await this.playerModel.findOne({
+      username: owner.username,
+    });
     if (existingUser) {
-      throw new BadRequestException("User already exists");
+      throw new BadRequestException('User already exists');
     }
 
     const salt = await bcrypt.genSalt();
@@ -26,13 +29,16 @@ export class PlayersService {
       username: owner.username,
       password: hashedPassword,
       state: '',
-      money: 1000, // valeur initiale par défaut ?
+      money: 1000,
     });
 
-    const savedUser = await newUser.save();
-    if (!savedUser) throw new BadRequestException("User creation failed");
+    const savedUser: PlayerDocument = await newUser.save();
+    if (!savedUser) throw new BadRequestException('User creation failed');
 
-    const payload = { name: savedUser.username, sub: savedUser.id };
+    const payload: { name: string; sub: number | string } = {
+      name: savedUser.username,
+      sub: savedUser.id as number | string,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -52,57 +58,66 @@ export class PlayersService {
 
   getActions() {
     return [
-      { name: "fold", description: "description fold" },
-      { name: "call", description: "description call" },
-      { name: "raise", description: "description raise" },
+      { name: 'fold', description: 'description fold' },
+      { name: 'call', description: 'description call' },
+      { name: 'raise', description: 'description raise' },
     ];
   }
 
   async setAction(name: string, id: number) {
     const player = await this.playerModel.findOne({ id });
     if (!player) {
-      throw new BadRequestException("User not found");
+      throw new BadRequestException('User not found');
     }
     player.state = name;
-    // ne pas sauvegarder ici car l'état est temporaire
+    await player.save(); // 👈 Ajouté pour persister le changement
   }
 
-  async createAIPlayer(name: string, table: Table): Promise<any> {
+  async createAIPlayer(name: string, table: Table): Promise<PlayerDto> {
     let idExists = true;
-    let newId: number;
+    let newId: number = Math.floor(Math.random() * 1000);
 
     while (idExists) {
-      newId = Math.floor(Math.random() * 100);
       const existsInDB = await this.playerModel.findOne({ id: newId });
-      const existsInTable = table.players.find(p => p.id === newId && p.isAI);
+      const existsInTable = table.players.find(
+        (p: PlayerDto) => p.id === newId && p.isAI,
+      );
       if (!existsInDB && !existsInTable) {
         idExists = false;
+      } else {
+        newId = Math.floor(Math.random() * 1000);
       }
     }
 
     return {
       id: newId,
       username: name,
+      password: '', // AI players have no password
       isAI: true,
       hand: [],
       bet: 0,
       money: 1000,
-      state: "",
+      state: '',
+      table: table.name,
     };
   }
 
-  async createPlayer(playerId: number): Promise<any> {
-    const playerData = await this.playerModel.findOne({ id: playerId });
-    if (!playerData) throw new BadRequestException("Player not found");
+  async createPlayer(playerId: number): Promise<PlayerDto> {
+    const playerData: PlayerDocument = (await this.playerModel.findOne({
+      id: playerId,
+    })) as PlayerDocument;
+    if (!playerData) throw new BadRequestException('Player not found');
 
     return {
-      id: playerData.id,
+      id: Number(playerData.id),
       username: playerData.username,
+      password: playerData.password,
       money: playerData.money,
       isAI: false,
       hand: [],
       bet: 0,
-      state: "",
+      state: '',
+      table: '', // Tu peux remplir ce champ selon ta logique
     };
   }
 
@@ -116,13 +131,16 @@ export class PlayersService {
   }
 
   async updateMoney(playerId: number, newAmount: number) {
-    await this.playerModel.updateOne({ id: playerId }, { $set: { money: newAmount } });
+    await this.playerModel.updateOne(
+      { id: playerId },
+      { $set: { money: newAmount } },
+    );
   }
 
-  resetPlayer(player: any) {
+  resetPlayer(player: PlayerDto) {
     player.hand = [];
-    player.state = "";
-    player.tableId = undefined;
+    player.state = '';
+    player.table = ''; // 👈 Assure-toi que la propriété est cohérente avec ton modèle
     player.bet = 0;
     return player;
   }

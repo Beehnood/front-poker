@@ -4,40 +4,54 @@ import { Card } from 'src/tables/entities/card.entity';
 
 @Injectable()
 export class DeckService {
-    constructor() {
+  generateDeck(): Deck {
+    const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+    const values = [
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      'J',
+      'Q',
+      'K',
+      'A',
+    ];
+    const deck = new Deck();
+
+    for (const suit of suits) {
+      for (const value of values) {
+        deck.cards.push(new Card(value, suit));
+      }
     }
 
-    generateDeck() {
-        let suits = ['hearts', 'diamonds', 'clubs', 'spades']
-        let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-        let deck = new Deck();
-        for (let suit of suits) {
-            for (let value of values) {
-                deck.cards.push(new Card(value, suit))
-            }
-        }
-        return deck
+    return deck;
+  }
+
+  shuffle(deck: Deck): Deck {
+    let currentIndex = deck.cards.length;
+
+    while (currentIndex !== 0) {
+      const randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      const temp = deck.cards[currentIndex];
+      deck.cards[currentIndex] = deck.cards[randomIndex];
+      deck.cards[randomIndex] = temp;
     }
 
-    shuffle(deck: Deck) {
-        let currentIndex = deck.cards.length, randomIndex, temporaryValue;
-        while (currentIndex !== 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-            temporaryValue = deck.cards[currentIndex];
-            deck.cards[currentIndex] = deck.cards[randomIndex];
-            deck.cards[randomIndex] = temporaryValue;
-        }
-        return deck;
-    }
+    return deck;
+  }
 
-    pickCard(deck: Deck) {
-        let card = deck.cards.shift();
-        return card;
-    }
+  pickCard(deck: Deck): Card | undefined {
+    return deck.cards.shift();
+  }
 
-    burnCard(deck: Deck) {
-        deck.cards.shift();
-        return "Card burned";
-    }
+  burnCard(deck: Deck): void {
+    deck.cards.shift(); // On retire simplement la première carte
+  }
 }

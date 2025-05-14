@@ -14,7 +14,6 @@ import { AuthService } from './auth.service';
 import { Public } from 'src/decorators/public.decorator';
 import { PlayersService } from 'src/players/players.service';
 import { PlayerDto } from 'src/players/dto/players.dto';
-import { Player } from 'src/entities/player.entity';
 import {ApiBearerAuth} from '@nestjs/swagger';
 
 
@@ -32,9 +31,9 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signUp')
-  async signUp(@Body() player: Player) {
-    return this.playerService.create(player);
-  }
+async signUp(@Body() player: PlayerDto) {
+  return this.playerService.create(player);
+}
 
   
   @Get('profile')

@@ -1,8 +1,8 @@
 import {  IsString, IsNotEmpty, IsNumber } from 'class-validator';
-import { Player } from 'src/entities/player.entity';
 import { Deck } from '../entities/deck.entity';
 import { Card } from '../entities/card.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { PlayerDto } from 'src/players/dto/players.dto';
 
 export class CreateTableDto {
 
@@ -17,7 +17,7 @@ export class CreateTableDto {
     @IsNotEmpty()
     @IsString()
     @ApiProperty({ default: [], isArray: true})
-    players: Player[] = [];
+    players: PlayerDto[] = [];
 
     @IsString()
     @IsNotEmpty()

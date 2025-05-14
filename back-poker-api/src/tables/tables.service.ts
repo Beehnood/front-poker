@@ -1,280 +1,198 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Table } from './entities/table.entity';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
+import { Table, TableDocument } from './table.shema';
+import { Player, PlayerDocument } from 'src/players/player.schema';
+
 import { DeckService } from 'src/deck/deck.service';
 import { PlayersService } from 'src/players/players.service';
+
+import { TableDto } from './dto/table.dto';
 import { PlayerDto } from 'src/players/dto/players.dto';
+import { Card } from './entities/card.entity';
 
 @Injectable()
 export class TablesService {
-  tables: Table[] = [];
-  MAX_ROUNDS = 4;
+  private tables: TableDto[] = [];
+  private readonly MAX_ROUNDS = 4;
 
   constructor(
-    private deckService: DeckService,
-    private playersService: PlayersService,
+    @InjectModel(Table.name) private readonly tableModel: Model<TableDocument>,
+    @InjectModel(Player.name)
+    private readonly playerModel: Model<PlayerDocument>,
+    private readonly deckService: DeckService,
+    private readonly playersService: PlayersService,
   ) {
+    this.initializeTables();
+  }
+
+  private async initializeTables() {
     for (let i = 0; i < 4; i++) {
-      this.createTable();
+      const name = `Table ${i + 1}`;
+      await this.createTable(name);
     }
   }
 
-  createTable() {
-    let table = new Table(this.tables.length);
-    table.deck = this.deckService.shuffle(this.deckService.generateDeck());
-    table.currentRound = 0;
-    this.tables.push(table);
+  async createTable(table_name: string): Promise<TableDto> {
+    const newTable = new TableDto(this.tables.length);
+    newTable.name = table_name;
+    newTable.deck = this.deckService.shuffle(
+      this.deckService.generateDeck(),
+    ) as unknown as string[];
+
+    const created = new this.tableModel(newTable);
+    await created.save();
+
+    this.tables.push(newTable);
+    return newTable;
   }
 
-  findAll() {
+  findAll(): TableDto[] {
     return this.tables;
   }
 
-  findOne(id: number) {
-    return this.tables[id];
+  findOne(id: number): TableDto {
+    const table = this.tables.find((t) => t.id === id);
+    if (!table) {
+      throw new NotFoundException(`Table ${id} not found`);
+    }
+    return table;
   }
 
-  async join(tableId: number, playerId: number) {
-    if (!this.tables[tableId]) {
-      return `Table ${tableId} not found`;
+  async join(tableId: number, playerId: number): Promise<TableDto> {
+    const table = this.findOne(tableId);
+    if (!table) {
+      throw new NotFoundException(`Table ${tableId} not found`);
     }
-    let player = await this.playersService.createPlayer(playerId);
-    if (!player) return 'Player not found';
-    if (player.money < 10) return 'Not enough money';
-    if (this.tables[tableId].players.some((p) => p.id === playerId)) {
-      return `You are already in the table ${tableId}`;
-    }
-
-    this.tables[tableId].players.push(player);
-    await this.startGame(tableId, playerId);
-    return this.formatResponse(tableId, playerId);
-  }
-
-  async actions(tableId: number, playerId: number, action: string, amount?: number) {
-    const table = this.tables[tableId];
-    if (!table) return `Table ${tableId} not found`;
-
-    const player = table.players.find((p) => p.id === playerId);
-    if (!player) return `Player ${playerId} not found`;
-
-    console.log(`joueur ${player.username} action ${action} amount ${amount}`);
-
-    switch (action) {
-      case 'fold':
-        return await this.fold(tableId, playerId);
-      case 'call':
-        return await this.call(tableId, playerId);
-      case 'raise':
-        return await this.raise(tableId, playerId, amount);
-      case 'check':
-        return await this.check(tableId, playerId);
-      case 'leave':
-        return this.leave(tableId, playerId);
-      case 'startGame':
-        return this.startGame(tableId, playerId);
-      case 'small_blind':
-        return this.blinds(tableId, playerId, 5);
-      case 'big_blind':
-        return this.blinds(tableId, playerId, 10);
-      default:
-        return { message: 'Action not found', possibleActions: [] };
-    }
-  }
-
-  async blinds(tableId: number, playerId: number, amount: number) {
-    const table = this.tables[tableId];
-    const player = table.players.find((p) => p.id === playerId);
-    if (!player) return `Player ${playerId} not found`;
-    if (player.money < amount) return 'Not enough money';
-
-    player.bet = amount;
-    player.money -= amount;
-    player.state = "waiting";
-
-    if (!player.isAI) {
-      await this.playersService.updateMoney(playerId, player.money);
+    const player: PlayerDto = await this.playersService.createPlayer(playerId);
+    if (!player) {
+      throw new NotFoundException(`Player ${playerId} not found`);
     }
 
-    table.currentBet = amount;
-    table.pot += amount;
-    return this.formatResponse(tableId, playerId);
-  }
-
-  async fold(tableId: number, playerId: number) {
-    const table = this.tables[tableId];
-    const player = table.players.find(p => p.id === playerId);
-    if (!player) throw new NotFoundException(`Player ${playerId} not found at table ${tableId}`);
-
-    player.state = 'fold';
-    const endMsg = this.checkGameEnd(tableId);
-    if (endMsg) return endMsg;
-    return this.formatResponse(tableId, playerId);
-  }
-
-  async call(tableId: number, playerId: number) {
-    const table = this.tables[tableId];
-    const player = table.players.find(p => p.id === playerId);
-    if (!player) return `Player ${playerId} not found`;
-
-    let diff = table.currentBet - player.bet;
-    if (player.money < diff) return 'Not enough money';
-
-    player.money -= diff;
-    player.bet = table.currentBet;
-    player.state = "waiting";
-
-    if (!player.isAI) {
-      await this.playersService.updateMoney(playerId, player.money);
+    if (player.money < 10) {
+      throw new Error('Not enough money');
     }
 
-    table.pot += diff;
-    const endMsg = this.checkGameEnd(tableId);
-    if (endMsg) return endMsg;
-    return this.formatResponse(tableId, playerId);
-  }
-
-  async raise(tableId: number, playerId: number, amount: number = 0) {
-    const table = this.tables[tableId];
-    const player = table.players.find(p => p.id === playerId);
-    if (!player) return `Player ${playerId} not found`;
-
-    let diff = amount - player.bet;
-    if (player.money < diff) return 'Not enough money';
-
-    player.money -= diff;
-    player.bet = amount;
-    player.state = "waiting";
-
-    if (!player.isAI) {
-      await this.playersService.updateMoney(playerId, player.money);
+    if (table.players.some((p) => p.id === playerId)) {
+      throw new Error(`You are already in the table ${tableId}`);
     }
 
-    table.pot += diff;
-    table.currentBet = amount;
-    const endMsg = this.checkGameEnd(tableId);
-    if (endMsg) return endMsg;
-    return this.formatResponse(tableId, playerId);
+    table.players.push(player);
+    this.startGame(tableId);
+
+    return table;
   }
 
-  check(tableId: number, playerId: number) {
-    return this.formatResponse(tableId, playerId);
-  }
+  startGame(tableId: number): void {
+    const table = this.findOne(tableId);
+    if (!table) return;
 
-  leave(tableId: number, playerId: number) {
-    const table = this.tables[tableId];
-    table.players = table.players.filter(p => p.id !== playerId);
-
-    if (table.players.every(p => p.isAI)) {
-      table.players = [];
+    if (table.players.length < 2) {
+      return; // Pas assez de joueurs pour commencer
     }
 
-    this.resetTable(tableId);
-    return this.tables;
-  }
-
-  async startGame(tableId: number, currentPlayerId: number) {
-    const table = this.tables[tableId];
-    table.currentRound = 0;
-    await this.generateAI(tableId, currentPlayerId, 2);
-
-    const players = table.players;
-    const dealerPosition = Math.floor(Math.random() * players.length);
-    players[dealerPosition].state = "dealer";
-    table.dealerIndex = dealerPosition;
-
-    players.forEach(player => {
-      for (let i = 0; i < 2; i++) {
-        const card = this.deckService.pickCard(table.deck);
-        if (card) {
-          player.hand.push(card);
-        }
-      }
-    });
-
-    this.assignBlinds(tableId);
-    table.currentPlayerIndex = players.findIndex(p => p.state === "small_blind");
-
-    this.playRound(tableId);
-  }
-
-  assignBlinds(tableId: number) {
-    const table = this.tables[tableId];
-    const players = table.players;
-    const dealerIndex = players.findIndex(p => p.state === "dealer");
-
-    const smallBlindIndex = (dealerIndex + 1) % players.length;
-    const bigBlindIndex = (dealerIndex + 2) % players.length;
-
-    players.forEach(player => player.state = "waiting");
-    players[dealerIndex].state = "dealer";
-    players[smallBlindIndex].state = "small_blind";
-    players[bigBlindIndex].state = "big_blind";
-  }
-
-  resetTable(tableId: number) {
-    const table = this.tables[tableId];
-    table.players = [];
-    table.deck = this.deckService.shuffle(this.deckService.generateDeck());
+    const shuffledDeck: { cards: Card[] } = this.deckService.shuffle(
+      this.deckService.generateDeck(),
+    );
+    table.deck = shuffledDeck.cards.map((card) => JSON.stringify(card));
     table.river = [];
     table.pot = 0;
     table.currentBet = 0;
-    table.currentRound = 0;
+    table.currentPlayerIndex = 0;
+    table.currentRound = 1;
+
+    for (const player of table.players) {
+      player.hand = [
+        JSON.parse(table.deck.pop() as string) as Card,
+        JSON.parse(table.deck.pop() as string) as Card,
+      ];
+      player.bet = 0;
+      player.state = 'playing';
+    }
+
+    table.dealerIndex = Math.floor(Math.random() * table.players.length);
   }
 
-  async generateAI(tableId: number, currentPlayerId: number, playersNumber: number) {
-    for (let i = 0; i < playersNumber; i++) {
-      const player = await this.playersService.createAIPlayer(`AI${i}`, this.tables[tableId]);
-      this.tables[tableId].players.push(player);
+  leave(tableId: number, playerId: number): void {
+    const table = this.findOne(tableId);
+    if (!table) return;
+
+    const index = table.players.findIndex((p) => p.id === playerId);
+    if (index >= 0) {
+      table.players.splice(index, 1);
     }
   }
-
-  checkGameEnd(tableId: number): string | undefined {
-    const table = this.tables[tableId];
-    const activePlayers = table.players.filter(p => p.state !== "fold");
-    if (activePlayers.length === 1) {
-      const winner = activePlayers[0];
-      const msg = `Everyone folded, player ${winner.username} wins ${table.pot}`;
-      this.resetTable(tableId);
-      return msg;
+  processHumanMove(
+    tableId: number,
+    playerId: number,
+    action: string,
+    amount?: number,
+  ): string {
+    const table = this.findOne(tableId);
+    if (!table) {
+      throw new NotFoundException(`Table ${tableId} not found`);
     }
-    return;
+
+    const player = table.players.find((p) => p.id === playerId);
+    if (!player) {
+      throw new NotFoundException(
+        `Player ${playerId} not found in table ${tableId}`,
+      );
+    }
+
+    if (player.state !== 'playing') {
+      throw new BadRequestException(
+        `Player ${playerId} is not in a valid state to act`,
+      );
+    }
+
+    switch (action) {
+      case 'fold':
+        player.state = 'folded';
+        break;
+
+      case 'call': {
+        const callAmount = table.currentBet - player.bet;
+        if (player.money < callAmount) {
+          throw new BadRequestException('Not enough money to call');
+        }
+        player.money -= callAmount;
+        player.bet += callAmount;
+        table.pot += callAmount;
+        break;
+      }
+
+      case 'raise': {
+        if (amount === undefined || amount <= 0) {
+          throw new BadRequestException('Invalid raise amount');
+        }
+        const totalBet = table.currentBet + amount;
+        const raiseAmount = totalBet - player.bet;
+        if (player.money < raiseAmount) {
+          throw new BadRequestException('Not enough money to raise');
+        }
+        player.money -= raiseAmount;
+        player.bet += raiseAmount;
+        table.pot += raiseAmount;
+        table.currentBet = player.bet;
+        break;
+      }
+
+      default:
+        throw new BadRequestException(`Invalid action: ${action}`);
+    }
+
+    player.state = 'played';
+
+    // Passer au joueur suivant
+    table.currentPlayerIndex =
+      (table.currentPlayerIndex + 1) % table.players.length;
+
+    return `Player ${playerId} performed ${action}`;
   }
-
-  private formatResponse(tableId: number, playerId: number) {
-    const table = this.tables[tableId];
-    return {
-      table,
-      possibleActions: this.getPossibleActions(table, playerId),
-    };
-  }
-
-  private getPossibleActions(table: Table, playerId: number): string[] {
-    const player = table.players.find(p => p.id === playerId);
-    if (!player) return [];
-
-    const actions: string[] = [];
-
-    if (player.state === 'fold') return [];
-
-    if (table.currentRound === 0 && (player.state === "small_blind" || player.state === "big_blind")) {
-      actions.push(player.state);
-      return actions;
-    }
-
-    if (player.bet < table.currentBet && player.money >= (table.currentBet - player.bet)) {
-      actions.push("call");
-    }
-
-    if (player.bet === table.currentBet) {
-      actions.push("check");
-    }
-
-    if (player.money > (table.currentBet - player.bet)) {
-      actions.push("raise");
-    }
-
-    actions.push("fold", "leave");
-
-    return actions;
-  }
-
 }
