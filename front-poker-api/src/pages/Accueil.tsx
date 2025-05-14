@@ -63,7 +63,10 @@ function Test() {
                             <Link to="/rules" className='button rules-button'>Voir les règles</Link>
                         </div>
                     </div>
-
+                    <div className='footer'>
+                        <p>© 2025 CasinoRoyal. Tous droits réservés.</p>
+                        <p>Politique de confidentialité | Conditions d'utilisation</p>
+                    </div>
                 </div>
             </div>
         </div>
