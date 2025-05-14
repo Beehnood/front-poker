@@ -1,4 +1,5 @@
 // App.jsx
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './Layout';
 import Accueil from './pages/Accueil';
@@ -9,7 +10,6 @@ import ParametreJeu from './pages/ParametreJeu';
 import Stats from './pages/Stats';
 import Game from './pages/Game';
 import Partie from './pages/Partie';
-// import Partie from './pages/Partie';
 import TableJeu from './pages/TableDeJeu'
 // import ParametreUtilisateur from './pages/ParametreUtilisateur';
 
