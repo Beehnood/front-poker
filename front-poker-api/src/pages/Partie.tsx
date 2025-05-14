@@ -58,7 +58,7 @@ const Partie = () => {
                                 ))}
                             </ul>
                         </div>
-                        <button onClick={() => setMode(null)} className='button'>Retour</button>
+                        <button onClick={() => setMode(null)} className='button'>Quitter la partie</button>
                     </div>
                 )}
             </div>
