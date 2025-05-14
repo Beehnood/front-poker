@@ -11,6 +11,7 @@ import Stats from './pages/Stats';
 import Game from './pages/Game';
 import Partie from './pages/Partie';
 import TableJeu from './pages/TableDeJeu'
+import Regles from './pages/Regles'
 // import ParametreUtilisateur from './pages/ParametreUtilisateur';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/partie" element={<Partie />} />
           <Route path="/partie/:tableId" element={<Partie />} />
           <Route path="/table" element={<TableJeu />} />
+          <Route path="/rules" element={<Regles />} />
           {/* <Route path="/parametre_utilisateur" element={<ParametreUtilisateur />} /> */}
         </Routes>
       </Layout>
