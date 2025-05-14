@@ -108,6 +108,19 @@ html, body {
     grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
 }
+.container.table .content ul{
+    list-style: none;
+}
+.container.table .content ul .table-item{
+    border: 1px solid var(--ter);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 0 0 10px 0;
+    transition: all 0.3s ease;
+}
+.container.table .content ul .table-item:hover{
+    background: var(--ter);
+}
 
 .container .header{
     position: static;
@@ -193,6 +206,13 @@ html, body {
     color: #fff;
     font-size: 45px;
 }
+.container .content .play .button.party{
+    background: none;
+    transition: all 0.8s cubic-bezier(0.1, 0.7, 1, 0.1);
+}
+/* .container .content .play>div:hover .button.party{
+    background: var(--sec);
+} */
 
 .container .content .infos{
     display: flex;
@@ -212,8 +232,14 @@ html, body {
     aspect-ratio: 10/1;
 }
 
+/* .container.table.choix .content .table-partie{
+} */
 .container.table.choix .content{
+    position: relative;
+    inset: 60px 0 0 0;
+    background: url(/../src/assets/images/table.jpg) no-repeat center / cover;
     gap: 10px;
+    height: 100%;
 }
 .container.table.choix .content>div p{
     text-align: center;

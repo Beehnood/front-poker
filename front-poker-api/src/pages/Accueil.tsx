@@ -15,7 +15,7 @@ function Test() {
                 <div className='play'>
                     <h1>Jouer maintenant !</h1>
                     <div>
-                        <Link to="/game" className='button'>Rejoindre une partie</Link>
+                        <Link to="/game" className='button party'>Rejoindre une partie</Link>
                     </div>
                 </div>
 
