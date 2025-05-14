@@ -5,18 +5,18 @@ import { Reflector } from '@nestjs/core';
 import { LoggerInterceptorInterceptor } from './logger-interceptor/logger-interceptor.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+import * as dotenv from 'dotenv';
+
 async function bootstrap() {
-  require('dotenv').config();
+  dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalInterceptors(new LoggerInterceptorInterceptor());
-  app.enableCors(
-    {
-      origin: process.env.CORS_ORIGIN,
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      credentials: true,
-    },
-  );
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   // configuration pour swagger
   const config = new DocumentBuilder()
@@ -26,8 +26,9 @@ async function bootstrap() {
     .addTag('Poker')
     .addBearerAuth()
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

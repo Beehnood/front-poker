@@ -5,25 +5,29 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Request
+  Request,
 } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
 
-import { AuthGuard } from './AuthGuard';
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorators/public.decorator';
 import { PlayersService } from 'src/players/players.service';
 import { PlayerDto } from 'src/players/dto/players.dto';
-import {ApiBearerAuth} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 
-
+@ApiTags('Auth') // <-- Groupe Swagger
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private playerService: PlayersService) { }
+  constructor(
+    private authService: AuthService,
+    private playerService: PlayersService,
+  ) {}
 
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signIn')
+  @ApiBody({ type: PlayerDto })
+  @ApiResponse({ status: 200, description: 'Successfully signed in' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signIn(@Body() player: PlayerDto) {
     return this.authService.signIn(player);
   }
@@ -31,14 +35,18 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signUp')
-async signUp(@Body() player: PlayerDto) {
-  return this.playerService.create(player);
-}
+  @ApiBody({ type: PlayerDto })
+  @ApiResponse({ status: 201, description: 'Player created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  async signUp(@Body() player: PlayerDto) {
+    return this.playerService.create(player);
+  }
 
-  
   @Get('profile')
   @ApiBearerAuth()
-  getProfile(@Request() req: any) {
+  @ApiResponse({ status: 200, description: 'Authenticated user profile' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  getProfile(@Request() req: { player: { userId: string | number } }) {
     return this.playerService.findOne(req.player.userId);
   }
 }

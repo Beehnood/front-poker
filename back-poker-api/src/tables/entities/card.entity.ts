@@ -1,6 +1,14 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class Card {
-  constructor(
-    public rank: string,
-    public suit: string,
-  ) { }
+  @ApiProperty()
+  suit: string;
+
+  @ApiProperty()
+  rank: string;
+
+  constructor(rank: string, suit: string) {
+    this.rank = rank;
+    this.suit = suit;
+  }
 }

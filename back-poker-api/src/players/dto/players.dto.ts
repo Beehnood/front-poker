@@ -1,14 +1,7 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsBoolean,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
+import { IsNumber, IsBoolean, IsArray, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-
+import { IsString, IsNotEmpty } from 'class-validator';
 import { Card } from 'src/tables/entities/card.entity';
 
 export class PlayerDto {
@@ -21,6 +14,11 @@ export class PlayerDto {
   @IsString()
   @IsNotEmpty()
   username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
 
   @ApiProperty({ default: 1000 })
   @IsNumber()
@@ -50,11 +48,6 @@ export class PlayerDto {
   @IsString()
   @IsNotEmpty()
   table: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  password: string;
 
   constructor(partial: Partial<PlayerDto>) {
     Object.assign(this, partial);
