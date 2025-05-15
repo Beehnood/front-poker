@@ -6,7 +6,7 @@ export async function getTables() {
 }
 
 export async function rejoindreTable(joueurId: any, tableId: any) {
-  const res = await fetch(`http://localhost:5000/api/tables/{$tableId}`, {
+  const res = await fetch(`http://localhost:5000/api/tables/${tableId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ joueurId, tableId }),
@@ -14,24 +14,24 @@ export async function rejoindreTable(joueurId: any, tableId: any) {
   return res.json();
 }
 
-export async function miser(joueurId: any, montant: any) {
-  const response = await fetch(`${API_BASE_URL}/`, {
+export async function miser(joueurId: any, montant: any, tableId: any) {
+  const response = await fetch(`${API_BASE_URL}/tables/${tableId}/actions/miser`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ joueurId, montant })
+    body: JSON.stringify({ joueurId, montant, tableId })
   });
   return response.json();
 }
 
-export async function seCoucher(joueurId: any) {
-  const response = await fetch(`${API_BASE_URL}/`, {
+export async function seCoucher(joueurId: any, tableId: any) {
+  const response = await fetch(`${API_BASE_URL}/tables/${tableId}/actions/coucher`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ joueurId })
+    body: JSON.stringify({ joueurId, tableId })
   });
   return response.json();
 }
