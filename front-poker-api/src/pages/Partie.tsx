@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { miser, seCoucher } from './Jouer';
+import backImage from '../assets/images/back.png'; // Assurez-vous que le chemin est correct
 
 type Player = {
     id: number;
@@ -89,57 +90,80 @@ const Partie = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className='table-partie'>
-                        <h2>{mode === 'play' ? 'Mode Joueur' : 'Mode Spectateur'}</h2>
-                        <div className='table-info'>
-                            <h3>Joueurs à la table :</h3>
-                            <ul>
-                                {players.map((player) => (
-                                    <li key={player.id}>
-                                        {player.name} {player.isAI ? '(IA)' : '(Vous)'}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        {mode === 'play' && (
-                            <div>
-                                <h3>Vos cartes :</h3>
-                                <div>
-                                    {cartes.length > 0
-                                        ? cartes.map((carte, idx) => (
-                                            <span key={idx} className="carte">{carte}</span>
-                                        ))
-                                        : <span>Aucune carte</span>
-                                    }
-                                </div>
+                    <>
+                        <div className='table-partie'>
+                            <h2>{mode === 'play' ? 'Mode Joueur' : 'Mode Spectateur'}</h2>
+                            <div className='table-info'>
+                                <h3>Joueurs à la table :</h3>
+                                <ul>
+                                    {players.map((player) => (
+                                        <li key={player.id}>
+                                            {player.name} {player.isAI ? '(IA)' : '(Vous)'}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
-                        )}
-                        <div>
-                            <h3>Actions :</h3>
                             {mode === 'play' && (
                                 <div>
-                                    <button onClick={handleMiser}>Miser 100</button>
-                                    <button onClick={handleSeCoucher}>Se coucher</button>
+                                    <h3>Vos cartes :</h3>
+                                    <div>
+                                        {cartes.length > 0
+                                            ? cartes.map((carte, idx) => (
+                                                <span key={idx} className="carte">{carte}</span>
+                                            ))
+                                            : <span>Aucune carte</span>
+                                        }
+                                    </div>
                                 </div>
                             )}
-                        </div>
-                        <button onClick={() => setMode(null)} className='button'>Quitter la partie</button>
-                        <div className='deck'>
-                            {/* Exemple d'affichage de cartes en front */}
-                            <div style={{ marginTop: '16px' }}>
-                                <h4>Exemple de cartes </h4>
-                                <div>
-                                    {Array.from({ length: 5 }).map((_, idx) => {
-                                        const randomIndex = Math.floor(Math.random() * toutesLesCartes.length);
-                                        const carte = toutesLesCartes[randomIndex];
-                                        return (
-                                            <span key={idx} className="carte">{carte}</span>
-                                        );
-                                    })}
+                            <div>
+                                <h3>Actions :</h3>
+                                {mode === 'play' && (
+                                    <div>
+                                        <button onClick={handleMiser}>Miser 100</button>
+                                        <button onClick={handleSeCoucher}>Se coucher</button>
+                                    </div>
+                                )}
+                            </div>
+                            <button onClick={() => setMode(null)} className='button'>Quitter la partie</button>
+                            <div className='deck'>
+                                {/* Exemple d'affichage de cartes en front */}
+                                <div style={{ marginTop: '16px' }}>
+                                    <h4>Exemple de cartes </h4>
+                                    <div>
+                                        {Array.from({ length: 5 }).map((_, idx) => {
+                                            const randomIndex = Math.floor(Math.random() * toutesLesCartes.length);
+                                            const carte = toutesLesCartes[randomIndex];
+                                            return (
+                                                <span key={idx} className="carte">{carte}</span>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div className='joueur_ia numero_un'>
+                            <div>
+                                <img src={backImage} />
+                                <img src={backImage} />
+                                <img src={backImage} />
+                            </div>
+                            <p>IA 1</p>
+                        </div>
+                        <div className='joueur_ia numero_deux'>
+                            <div>
+                                <img src={backImage} />
+                                <img src={backImage} />
+                                <img src={backImage} />
+                            </div>
+                            <p>IA 2</p>
+                        </div>
+                        {/* <div className='joueur_ia numero_trois'>
+                            <img src={backImage} />
+                            <img src={backImage} />
+                            <img src={backImage} />
+                        </div> */}
+                    </>
                 )}
                 {/* {message && <p>{message}</p>} */}
             </div>
