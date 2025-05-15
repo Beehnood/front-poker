@@ -29,6 +29,7 @@ export class AuthService {
       const newPlayer = (await this.playerService.create({
         username: player.email,
         password: hashedPassword,
+        email: player.email,
       })) as { id?: string; _id?: string };
 
       return {

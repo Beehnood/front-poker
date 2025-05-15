@@ -14,7 +14,7 @@ export class PlayersService {
     private jwtService: JwtService,
   ) {}
 
-  async create(owner: { username: string; password: string, email: string }) {
+  async create(owner: { username: string; password: string; email: string }) {
     const existingUser = await this.playerModel.findOne({
       username: owner.username,
     });
@@ -26,8 +26,7 @@ export class PlayersService {
     const hashedPassword = await bcrypt.hash(owner.password, salt);
 
     const newUser = new this.playerModel({
-
-      id: 42, 
+      id: 42,
       email: owner.email,
       username: owner.username,
       password: hashedPassword,
@@ -44,24 +43,21 @@ export class PlayersService {
     };
     return {
       access_token: this.jwtService.sign(payload),
-    };  
+    };
   }
 
   async findAll() {
     return this.playerModel.find().exec();
   }
 
-<<<<<<< HEAD
-  async findByUsername(email: string) {
-    return this.playerModel.findOne({ email }).exec();
-=======
   async findByEmail(email: string) {
     return this.playerModel.findOne({ email }).exec();
   }
+
   async findByUsername(username: string) {
     return this.playerModel.findOne({ username }).exec();
->>>>>>> e76190f (commit simple)
   }
+
   async findOne(id: number | string) {
     return this.playerModel.findOne({ id }).exec();
   }
