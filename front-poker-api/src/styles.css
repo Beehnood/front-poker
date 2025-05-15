@@ -108,6 +108,9 @@ html, body {
     grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
     list-style: none;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
 }
 .container.table.choix .content .table-partie button{
     margin: 20px auto 0;
@@ -308,7 +311,7 @@ html, body {
     grid-template-rows: repeat(4, 1fr);
     position: relative;
     /* background: url(/../src/assets/images/table.jpg) no-repeat center / cover; */
-    gap: 10px;
+    gap: 10px 50px;
     height: 70%;
     width: 100%;
     max-width: none;
@@ -324,6 +327,32 @@ html, body {
 .container.table.choix .content .table-partie, .container.table.choix .content .table-choix {
     grid-column: 2 / span 2;
     grid-row: 3;
+}
+.container.table.choix .content .joueur_ia>div{
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    max-width: 140px;
+    width: 100%;
+    margin: 0 auto;
+}
+.container.table.choix .content .joueur_ia.numero_un{
+    grid-column: 2;
+    grid-row: 1;
+}
+.container.table.choix .content .joueur_ia.numero_deux{
+    grid-column: 3;
+    grid-row: 1;
+}
+.container.table.choix .content .joueur_ia.numero_trois{
+    grid-column: 3;
+    grid-row: 1;
+}
+.container.table.choix .content .joueur_ia img{
+    width: 100%;
+    max-width: 40px;
+    margin: 0 auto;
 }
 .container.table.choix .content>div p{
     text-align: center;
