@@ -12,7 +12,6 @@ const Partie = () => {
     const [mode, setMode] = useState<'play' | 'watch' | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const { tableId } = useParams();
-    const [tableData, setTableData] = useState(null);
 
     const handleJoinTable = (mode: 'play' | 'watch') => {
         setMode(mode);

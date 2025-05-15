@@ -4,9 +4,12 @@ import { Document } from 'mongoose';
 export type PlayerDocument = Player & Document;
 
 @Schema()
-export class Player {
+export class Player extends Document {
   @Prop({ required: true })
   id: number;
+
+  @Prop({ required: true, unique: true })
+  email: string;
 
   @Prop({ required: true })
   username: string;

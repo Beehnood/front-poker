@@ -1,16 +1,16 @@
 // App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './Layout';
-import Accueil from './pages/Accueil';
-import Connexion from './pages/Connexion';
-import Inscription from './pages/Inscription';
-import Profile from './pages/Profile';
-import ParametreJeu from './pages/ParametreJeu';
-import Stats from './pages/Stats';
-import Game from './pages/Game';
-import Partie from './pages/Partie';
+import Layout from '../Layout';
+import Accueil from './Accueil';
+import Connexion from './Connexion';
+import Inscription from './Inscription';
+import Profile from './Profile';
+import ParametreJeu from './ParametreJeu';
+import Stats from './Stats';
+import Game from './Game';
+import Partie from './Partie';
 // import Partie from './pages/Partie';
-import TableJeu from './pages/TableDeJeu'
+import TableJeu from './TableDeJeu'
 // import ParametreUtilisateur from './pages/ParametreUtilisateur';
 
 function App() {

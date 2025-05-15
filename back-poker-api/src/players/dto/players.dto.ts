@@ -3,12 +3,30 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsString, IsNotEmpty } from 'class-validator';
 import { Card } from 'src/tables/entities/card.entity';
+export class PlayerSubscriptionDTO {
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
+}
 export class PlayerDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   id: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 
   @ApiProperty()
   @IsString()
