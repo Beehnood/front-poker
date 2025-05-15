@@ -568,5 +568,14 @@ html, body {
 @media (prefers-color-scheme: light) {
     /* .container .content h1 {
         color: #000;
-    } */
+    }*/
+}
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.success {
+    color: green;
+    margin-bottom: 10px;
 }

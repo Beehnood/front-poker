@@ -3,45 +3,66 @@ import '../styles.css';
 
 const Inscription = () => {
     const [formData, setFormData] = useState({
-        username: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            alert('Les mots de passe ne correspondent pas.');
-            return;
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (formData.password !== formData.confirmPassword) {
+        setError('Les mots de passe ne correspondent pas.');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/signUp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: formData.email,
+                password: formData.password,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erreur lors de l\'inscription');
         }
-        // Logique pour soumettre les données
-        console.log('Formulaire soumis :', formData);
-    };
+
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        setSuccess('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+        console.log('Réponse API:', data);
+    } catch (err) {
+        if (err instanceof Error) {
+            setError(err.message || 'Une erreur est survenue');
+        } else {
+            setError('Une erreur est survenue');
+        }
+    }
+};
 
     return (
         <div className='container_form_wrapper'>
             <div className='container_form'>
                 <h2>Inscription</h2>
+                {error && <p className="error">{error}</p>}
+                {success && <p className="success">{success}</p>}
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '15px' }}>
-                        <label htmlFor="username">Nom d'utilisateur</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required
-                            className='input'
-                        />
-                    </div>
-                    <div style={{ marginBottom: '15px' }}>
+                    <div className='form-group'>
                         <label htmlFor="email">Email</label>
                         <input
                             type="email"
@@ -53,7 +74,7 @@ const Inscription = () => {
                             className='input'
                         />
                     </div>
-                    <div style={{ marginBottom: '15px' }}>
+                    <div className='form-group'>
                         <label htmlFor="password">Mot de passe</label>
                         <input
                             type="password"
@@ -65,7 +86,7 @@ const Inscription = () => {
                             className='input'
                         />
                     </div>
-                    <div style={{ marginBottom: '15px' }}>
+                    <div className='form-group'>
                         <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
                         <input
                             type="password"
@@ -77,11 +98,10 @@ const Inscription = () => {
                             className='input'
                         />
                     </div>
-                    <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007BFF', color: '#fff', border: 'none', borderRadius: '5px' }}>
-                        S'inscrire
-                    </button>
+                    <p>Déjà un compte ? <a href='/connexion'>Connectez-vous</a></p>
+                    <button type="submit" className='button'>S'inscrire</button>
                 </form>
-        </div>
+            </div>
         </div>
     );
 };

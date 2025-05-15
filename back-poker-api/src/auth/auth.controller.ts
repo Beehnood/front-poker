@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorators/public.decorator';
 import { PlayersService } from 'src/players/players.service';
-import { PlayerDto } from 'src/players/dto/players.dto';
+import { PlayerDto, PlayerSubscriptionDTO } from 'src/players/dto/players.dto';
 import { ApiBearerAuth, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Auth') // <-- Groupe Swagger
@@ -29,17 +29,24 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Successfully signed in' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signIn(@Body() player: PlayerDto) {
-    return this.authService.signIn(player);
+    return this.authService.signIn({
+      email: player.email,
+      password: player.password,
+    });
   }
 
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signUp')
-  @ApiBody({ type: PlayerDto })
+  @ApiBody({ type: PlayerSubscriptionDTO })
   @ApiResponse({ status: 201, description: 'Player created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  async signUp(@Body() player: PlayerDto) {
-    return this.playerService.create(player);
+  async signUp(@Body() player: PlayerSubscriptionDTO) {
+    // Vérification de l'existence de l'utilisateur
+    return this.playerService.create({
+      username: player.username,
+      password: player.password,
+    });
   }
 
   @Get('profile')

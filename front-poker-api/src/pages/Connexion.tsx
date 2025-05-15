@@ -1,23 +1,52 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '../styles.css';
+// import Logout from './Logout'; // Assure-toi que le chemin est correct
 
 const Connexion = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
-        // Logique de connexion à implémenter ici
-        console.log('Email:', email);
-        console.log('Password:', password);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/signIn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la connexion');
+            }
+
+            const data = await response.json();
+            localStorage.setItem('access_token', data.access_token);
+            setSuccess('Connexion réussie !');
+            console.log('Réponse API:', data);
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Une erreur est survenue');
+            }
+        }
     };
 
     return (
         <div className='container_form_wrapper'>
             <div className='container_form'>
                 <h2>Connexion</h2>
+                {error && <p className="error">{error}</p>}
+                {success && <p className="success">{success}</p>}
                 <form onSubmit={handleSubmit}>
-                    <div className='content_form'>
+                    <div className='form-group'>
                         <label htmlFor="email">Email</label>
                         <input
                             type="email"
@@ -28,7 +57,7 @@ const Connexion = () => {
                             className='input'
                         />
                     </div>
-                    <div className='content_form'>
+                    <div className='form-group'>
                         <label htmlFor="password">Mot de passe</label>
                         <input
                             type="password"
@@ -42,10 +71,10 @@ const Connexion = () => {
                     <p>Je n'ai pas de compte ? <a href='/inscription'>Inscrivez-vous</a></p>
                     <button type="submit" className='button'>Se connecter</button>
                 </form>
+                {/* <Logout /> */}
             </div>
         </div>
     );
 };
-
 
 export default Connexion;

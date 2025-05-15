@@ -26,6 +26,7 @@ export class PlayersService {
     const hashedPassword = await bcrypt.hash(owner.password, salt);
 
     const newUser = new this.playerModel({
+      id: 42,
       username: owner.username,
       password: hashedPassword,
       state: '',
@@ -93,6 +94,7 @@ export class PlayersService {
       id: newId,
       username: name,
       password: '', // AI players have no password
+      email: '', // AI players have no email
       isAI: true,
       hand: [],
       bet: 0,
@@ -110,6 +112,7 @@ export class PlayersService {
 
     return {
       id: Number(playerData.id),
+      email: playerData.email,
       username: playerData.username,
       password: playerData.password,
       money: playerData.money,
