@@ -112,6 +112,13 @@ html, body {
 .container.table.choix .content .table-partie button{
     margin: 20px auto 0;
 }
+.container.table.choix .content .deck>div>div{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.container.table.choix .content .deck>div>div span:not(span:nth-child(-n + 4)){
+    display: none;
+}
 .container.table .content ul .table-item, .container.table.choix .content>div>div button, .container.table .content .table-partie button{
     border: 2px solid rgba(0, 0, 0, 0.3);
     border-radius: 10px;
@@ -314,7 +321,7 @@ html, body {
     grid-column: 2 / span 2;
     grid-row: 2;
 }
-.container.table.choix .content .table-partie {
+.container.table.choix .content .table-partie, .container.table.choix .content .table-choix {
     grid-column: 2 / span 2;
     grid-row: 3;
 }
