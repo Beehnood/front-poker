@@ -25,10 +25,10 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signIn')
-  @ApiBody({ type: PlayerDto })
+  @ApiBody({ type: PlayerSubscriptionDTO })
   @ApiResponse({ status: 200, description: 'Successfully signed in' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async signIn(@Body() player: PlayerDto) {
+  async signIn(@Body() player: PlayerSubscriptionDTO) {
     return this.authService.signIn({
       email: player.email,
       password: player.password,
@@ -46,6 +46,7 @@ export class AuthController {
     return this.playerService.create({
       username: player.username,
       password: player.password,
+      email: player.email,
     });
   }
 

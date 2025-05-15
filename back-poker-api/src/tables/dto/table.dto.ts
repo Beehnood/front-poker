@@ -11,7 +11,8 @@ export class TableDto {
   currentPlayerIndex: number;
   dealerIndex: number;
   players: PlayerDto[];
-  newTable: import('/Users/behnoodpazhang/Desktop/B3/App-web/back-poker-api/src/tables/entities/deck.entity').Deck;
+  // newTable: import('/Users/behnoodpazhang/Desktop/B3/App-web/back-poker-api/src/tables/entities/deck.entity').Deck;
+  newTable: import('../entities/deck.entity').Deck;
 
   constructor(id: number) {
     this.id = id;
