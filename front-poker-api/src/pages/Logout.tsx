@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const Logout = () => {
     const [success, setSuccess] = useState<string | null>(null);
