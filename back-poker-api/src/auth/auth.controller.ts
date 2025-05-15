@@ -14,7 +14,7 @@ import { PlayersService } from 'src/players/players.service';
 import { PlayerDto, PlayerSubscriptionDTO } from 'src/players/dto/players.dto';
 import { ApiBearerAuth, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 
-@ApiTags('Auth') // <-- Groupe Swagger
+@ApiTags('Auth') // Groupe Swagger
 @Controller('auth')
 export class AuthController {
   constructor(

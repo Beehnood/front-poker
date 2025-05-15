@@ -26,6 +26,7 @@ export class PlayersService {
     const hashedPassword = await bcrypt.hash(owner.password, salt);
 
     const newUser = new this.playerModel({
+
       id: 42, 
       email: owner.email,
       username: owner.username,
@@ -50,10 +51,17 @@ export class PlayersService {
     return this.playerModel.find().exec();
   }
 
+<<<<<<< HEAD
   async findByUsername(email: string) {
     return this.playerModel.findOne({ email }).exec();
+=======
+  async findByEmail(email: string) {
+    return this.playerModel.findOne({ email }).exec();
   }
-
+  async findByUsername(username: string) {
+    return this.playerModel.findOne({ username }).exec();
+>>>>>>> e76190f (commit simple)
+  }
   async findOne(id: number | string) {
     return this.playerModel.findOne({ id }).exec();
   }
@@ -108,6 +116,7 @@ export class PlayersService {
   async createPlayer(playerId: number): Promise<PlayerDto> {
     const playerData: PlayerDocument = (await this.playerModel.findOne({
       id: playerId,
+      email: { $ne: '' }, // Assure-toi que l'email n'est pas vide
     })) as PlayerDocument;
     if (!playerData) throw new BadRequestException('Player not found');
 
