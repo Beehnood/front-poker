@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import './menu.css';
 
 const MenuBureau = () => {
+    // TODO: Replace this with real authentication logic
+    const [isLoggedIn] = useState(false);
+
     return (
         <header className="menu-bureau-header">
             <div className="menu-bureau-logo">
@@ -15,9 +18,26 @@ const MenuBureau = () => {
                     <li>
                         <a href='/game'>Jouer</a>
                     </li>
-                    <li>
-                        <a href='/connexion'>Profil</a>
+                    {isLoggedIn ? (
+                        <>
+                            <li>
+                                <a href='/profile'>Mon profile</a>
+                            </li>
+                            <li>
+                                <a href='/logout'>Se déconnecter</a>
+                            </li>
+                        </>
+                    ) : (
+                        <li>
+                            <a href='/connexion'>Se connecter</a>
+                        </li>
+                    )}
+                    {/* <li>
+                        <a href='/connexion'>Se connecter</a>
                     </li>
+                    <li>
+                        <a href='/logout'>Se déconnecter</a>
+                    </li> */}
                 </ul>
             </nav>
         </header>
