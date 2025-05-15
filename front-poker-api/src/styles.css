@@ -288,7 +288,7 @@ html, body {
     position: absolute;
     z-index: -1;
     inset: 0;
-    background: url(/../src/assets/images/fond.jpg) no-repeat center / cover;
+    background: url(/../src/assets/images/table.jpg) no-repeat center / cover;
     aspect-ratio: 1;
     opacity: 1;
 }
@@ -296,16 +296,27 @@ html, body {
     color: #fff;
 }
 .container.table.choix .content{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
     position: relative;
-    background: url(/../src/assets/images/table.jpg) no-repeat center / cover;
+    /* background: url(/../src/assets/images/table.jpg) no-repeat center / cover; */
     gap: 10px;
-    height: 100%;
+    height: 70%;
     width: 100%;
     max-width: none;
     justify-content: center;
 }
 .container.table.choix .content *{
     color: #fff;
+}
+.container.table.choix .content h1 {
+    grid-column: 2 / span 2;
+    grid-row: 2;
+}
+.container.table.choix .content .table-partie {
+    grid-column: 2 / span 2;
+    grid-row: 3;
 }
 .container.table.choix .content>div p{
     text-align: center;
@@ -329,10 +340,11 @@ html, body {
     background: var(--ter);
 } */
 .container.table.choix .content>div .table-info{
-    display: flex;
+    display: none;
+    /* display: flex;
     flex-flow: column nowrap;
     gap: 20px;
-    list-style: none;
+    list-style: none; */
 }
 .container.table.choix .content .table-partie h2{
     text-align: center;
