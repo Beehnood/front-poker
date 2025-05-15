@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { miser, seCoucher } from './Jouer';
 
 type Player = {
     id: number;
@@ -7,6 +8,8 @@ type Player = {
     isAI: boolean;
 };
 import '../styles.css';
+
+
 
 const Partie = () => {
     const [mode, setMode] = useState<'play' | 'watch' | null>(null);
@@ -31,6 +34,23 @@ const Partie = () => {
         }
     };
 
+    const [montant, setMontant] = useState(0);
+    const [message, setMessage] = useState('');
+
+    const joueurId = 1; // L'utilisateur est toujours le joueur 1
+
+    const handleMiser = async () => {
+        const result = await miser(joueurId, montant);
+        setMessage(result.message || 'Mise effectuée');
+    };
+
+    const handleSeCoucher = async () => {
+        const result = await seCoucher(joueurId);
+        setMessage(result.message || 'Vous vous êtes couché');
+        // console.log("Se coucher");
+        
+    };
+
     return (
         <div className="container table choix">
             <div className="content" >
@@ -41,7 +61,7 @@ const Partie = () => {
                         <p>Choisissez une option :</p>
                         <div>
                             <button onClick={() => handleJoinTable('play')}>Jouer</button>
-                            <button onClick={() => handleJoinTable('watch')}>Regarder</button>
+                            {/* <button onClick={() => handleJoinTable('watch')}>Regarder</button> */}
                         </div>
                     </div>
                 ) : (
@@ -56,6 +76,15 @@ const Partie = () => {
                                     </li>
                                 ))}
                             </ul>
+                        </div>
+                        <div>
+                            <h3>Actions :</h3>
+                            {mode === 'play' && (
+                                <div>
+                                    <button onClick={handleMiser}>Miser 100</button>
+                                    <button onClick={handleSeCoucher}>Se coucher</button>
+                                </div>
+                            )}
                         </div>
                         <button onClick={() => setMode(null)} className='button'>Quitter la partie</button>
                     </div>
