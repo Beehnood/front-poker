@@ -10,12 +10,17 @@ import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 @ApiResponse({ status: 403, description: 'Forbidden.' })
 @Controller('player')
 export class PlayersController {
-  constructor(private readonly playersService: PlayersService) { }
+  constructor(private readonly playersService: PlayersService) {}
 
+  // Uncomment the following if you implement findByUsername in PlayersService
+  // @Get('username/:username')
+  // findByUsername(@Param('username') username: string) {
+  //   return this.playersService.findByUsername(username);
+  // }
 
-  @Get(':username')
-  findByUsername(@Param('username') username: string) {
-    return this.playersService.findByUsername(username);
+  @Get('email/:email')
+  findByEmail(@Param('email') email: string) {
+    return this.playersService.findByEmail(email);
   }
 
   @Get('')
@@ -24,8 +29,8 @@ export class PlayersController {
     description: 'The record has been successfully created.',
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  findAll(@Request() req: any) {
-    let player = req.player;
+  findAll(@Request() req: { player: { sub: string } }) {
+    const player = req.player;
     return this.playersService.findOne(player.sub);
   }
 
@@ -35,8 +40,8 @@ export class PlayersController {
     description: 'The record has been successfully created.',
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  motherlode(@Request() req: any) {
-    let player = req.player;
-    return this.playersService.motherlode(player.sub);
+  motherlode(@Request() req: { player: { sub: string } }) {
+    const player = req.player;
+    return this.playersService.motherlode(Number(player.sub));
   }
 }

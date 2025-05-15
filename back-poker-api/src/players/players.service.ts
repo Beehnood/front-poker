@@ -14,7 +14,7 @@ export class PlayersService {
     private jwtService: JwtService,
   ) {}
 
-  async create(owner: { username: string; password: string, email: string }) {
+  async create(owner: { username: string; password: string; email: string }) {
     const existingUser = await this.playerModel.findOne({
       username: owner.username,
     });
@@ -26,7 +26,7 @@ export class PlayersService {
     const hashedPassword = await bcrypt.hash(owner.password, salt);
 
     const newUser = new this.playerModel({
-      id: 42, 
+      id: 42,
       email: owner.email,
       username: owner.username,
       password: hashedPassword,
@@ -43,15 +43,19 @@ export class PlayersService {
     };
     return {
       access_token: this.jwtService.sign(payload),
-    };  
+    };
   }
 
   async findAll() {
     return this.playerModel.find().exec();
   }
 
-  async findByUsername(email: string) {
+  async findByEmail(email: string) {
     return this.playerModel.findOne({ email }).exec();
+  }
+
+  async findByUsername(username: string) {
+    return this.playerModel.findOne({ username }).exec();
   }
 
   async findOne(id: number | string) {
@@ -108,6 +112,7 @@ export class PlayersService {
   async createPlayer(playerId: number): Promise<PlayerDto> {
     const playerData: PlayerDocument = (await this.playerModel.findOne({
       id: playerId,
+      email: { $ne: '' }, // Assure-toi que l'email n'est pas vide
     })) as PlayerDocument;
     if (!playerData) throw new BadRequestException('Player not found');
 
