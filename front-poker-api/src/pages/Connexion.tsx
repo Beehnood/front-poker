@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles.css';
+// import { set } from 'mongoose';
 // import Logout from './Logout'; // Assure-toi que le chemin est correct
 
 const Connexion = () => {
@@ -7,6 +8,16 @@ const Connexion = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            setIsLoggedIn(true);
+            setSuccess('Vous êtes déjà connecté.');
+        }
+    }, []);
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
@@ -28,6 +39,7 @@ const Connexion = () => {
 
             const data = await response.json();
             localStorage.setItem('access_token', data.access_token);
+            setIsLoggedIn(true);
             setSuccess('Connexion réussie !');
             console.log('Réponse API:', data);
         } catch (err) {
@@ -45,6 +57,12 @@ const Connexion = () => {
                 <h2>Connexion</h2>
                 {error && <p className="error">{error}</p>}
                 {success && <p className="success">{success}</p>}
+                {isLoggedIn ? (
+                    <div>
+                        <p>Vous êtes connecté !</p>
+                        {/* <Logout onLogout={() => setIsLoggedIn(false)} /> */}
+                    </div>
+                ) : (
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
                         <label htmlFor="email">Email</label>
@@ -71,7 +89,10 @@ const Connexion = () => {
                     <p>Je n'ai pas de compte ? <a href='/inscription'>Inscrivez-vous</a></p>
                     <button type="submit" className='button'>Se connecter</button>
                 </form>
-                {/* <Logout /> */}
+                )}
+                {/* <p>Mot de passe oublié ? <a href='/forgot-password'>Réinitialiser</a></p> */}
+                {/* <p>Pas encore inscrit ? <a href='/inscription'>Inscrivez-vous</a></p> */}
+                {/* <Logout onLogout={() => setIsLoggedIn(false)} /> */}
             </div>
         </div>
     );
