@@ -1,10 +1,25 @@
-import { useState } from 'react';
+import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logout from './pages/Logout'; // Ajuste le chemin si nécessaire
+import Logout from './pages/Logout';
+import './styles.css'; // Confirme que ce chemin est correct
 
 const MenuBureau = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsLoggedIn(!!localStorage.getItem('access_token'));
+        };
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('token-updated', handleStorageChange);
+        handleStorageChange();
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('token-updated', handleStorageChange);
+        };
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');

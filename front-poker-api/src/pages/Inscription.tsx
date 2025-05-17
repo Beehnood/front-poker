@@ -15,50 +15,48 @@ const Inscription = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void }) => {
-        e.preventDefault();
-        setError(null);
-        setSuccess(null);
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas.');
-            return;
+    if (formData.password !== formData.confirmPassword) {
+        setError('Les mots de passe ne correspondent pas.');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/signUp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: formData.email,
+                email: formData.email,
+                password: formData.password,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erreur lors de l\'inscription');
         }
 
-        try {
-            const response = await fetch('http://localhost:3000/api/auth/signUp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.email,
-                    email: formData.email,
-                    password: formData.password,
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Erreur lors de l\'inscription');
-            }
-
-            const data = await response.json();
-            if (data.access_token) {
-                localStorage.setItem('access_token', data.access_token);
-                setSuccess('Inscription réussie ! Token stocké.');
-            } else {
-                setSuccess('Inscription réussie !');
-            }
-            console.log('Réponse API:', data);
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message || 'Une erreur est survenue');
-            } else {
-                setError('Une erreur est survenue');
-            }
+        const data = await response.json();
+        if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            setSuccess('Inscription réussie ! Token stocké.');
+            // Déclenche un événement personnalisé pour notifier les changements
+            window.dispatchEvent(new Event('token-updated'));
+        } else {
+            setSuccess('Inscription réussie !');
         }
-    };
+        console.log('Réponse API:', data);
+    } catch (err) {
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    }
+};
 
     return (
         <div className='container_form_wrapper'>

@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import MenuBureau from '../../MenuBureau';
-import { vi } from 'vitest';
+import MenuBureau from '../../MenuBureau'; // Ajuste le chemin
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import Connexion from '../Connexion'; // Ajuste le chemin
 
