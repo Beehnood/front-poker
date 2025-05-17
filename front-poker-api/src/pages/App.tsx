@@ -13,12 +13,19 @@ import Partie from './Partie';
 // import Partie from './pages/Partie';
 import TableJeu from './TableDeJeu'
 import Regles from './Regles';
+import MenuBureau from '../MenuBureau';
 // import ParametreUtilisateur from './pages/ParametreUtilisateur';
 
 function App() {
+  const handleLogout = () => {
+    // Add your logout logic here, e.g., clearing tokens, redirecting, etc.
+    console.log('User logged out');
+  };
+
   return (
     <Router>
       <Layout>
+        < MenuBureau onLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<Accueil />} />
           <Route path="/connexion" element={<Connexion />} />
@@ -32,6 +39,7 @@ function App() {
           <Route path="/partie/:tableId" element={<Partie />} />
           <Route path="/table" element={<TableJeu />} />
           <Route path="/rules" element={<Regles />} />
+          <Route path='/logout' element={<Connexion />} />
           {/* <Route path="/parametre_utilisateur" element={<ParametreUtilisateur />} /> */}
         </Routes>
       </Layout>

@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '../styles.css';
+   
 
 const Logout = ({ onLogout }: { onLogout: () => void }) => {
     const [success, setSuccess] = useState<string | null>(null);
+    
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         setSuccess('Déconnecté avec succès.');
-        onLogout(); // Appelle la fonction pour mettre à jour l'état dans Connexion.tsx
+        onLogout();
+        // Redirige vers la page d'accueil ou une autre page
     };
 
     return (
