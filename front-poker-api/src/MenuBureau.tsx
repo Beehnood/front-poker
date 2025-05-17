@@ -1,62 +1,54 @@
-import { useState } from "react";
-import "./menu.css";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Logout from './pages/Logout'; // Ajuste le chemin si nécessaire
 
 const MenuBureau = () => {
-  // TODO: Replace this with real authentication logic
-  // const [isLoggedIn] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("access_token")
-  );
-  const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    setIsLoggedIn(false);
-    navigate("/connexion"); // Redirige vers la page de connexion
-  };
+    const handleLogout = () => {
+        localStorage.removeItem('access_token');
+        setIsLoggedIn(false);
+        navigate('/connexion');
+    };
 
-  return (
-    <header className="menu-bureau-header">
-      <div className="menu-bureau-logo">
-        <h1>
-          <a href="/">CasinoRoyal</a>
-        </h1>
-      </div>
-      <nav className="menu-bureau-nav">
-        <ul>
-          <li>
-            <a href="/">Accueil</a>
-          </li>
-          <li>
-            <a href="/game">Jouer</a>
-          </li>
-          {isLoggedIn ? (
-            <>
-              <li>
-                <a href="/profile">Mon profile</a>
-              </li>
+    const handleLinkClick = (path: string) => {
+        navigate(path);
+    };
 
-              <li>
-                <a href="/connexion" onClick={handleLogout}>
-                  Se déconnecter
-                </a>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <a href="/connexion">Se connecter</a>
-              </li>
-              <li>
-                <a href="/inscription">S'inscrire</a>
-              </li>
-            </>
-          )}
-        </ul>
-      </nav>
-    </header>
-  );
+    return (
+        <header className="menu-bureau-header">
+            <div className="menu-bureau-logo">
+                <h1>
+                    <a onClick={() => handleLinkClick('/')}>CasinoRoyal</a>
+                </h1>
+            </div>
+            <nav className="menu-bureau-nav">
+                <ul>
+                    <li>
+                        <a onClick={() => handleLinkClick('/')}>Accueil</a>
+                    </li>
+                    <li>
+                        <a onClick={() => handleLinkClick('/game')}>Jouer</a>
+                    </li>
+                    {!isLoggedIn ? (
+                        <>
+                            <li>
+                                <a onClick={() => handleLinkClick('/connexion')}>Se connecter</a>
+                            </li>
+                            <li>
+                                <a onClick={() => handleLinkClick('/inscription')}>S'inscrire</a>
+                            </li>
+                        </>
+                    ) : (
+                        <li>
+                            <Logout onLogout={handleLogout} />
+                        </li>
+                    )}
+                </ul>
+            </nav>
+        </header>
+    );
 };
 
 export default MenuBureau;
