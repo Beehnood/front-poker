@@ -24,9 +24,9 @@ Rejoindre une table de poker
 Démarrer une partie de Texas Hold'em
 Jouer le premier tour
 Tests :
-Ce n'est pas prévu encore, sinon : 
-Au moins deux tests unitaires par membre d'équipe
-Au moins deux tests end-to-end (E2E) par membre d'équipe
+Sept tests unitaires sont effectués,
+Trois tests end-to-end (E2E) sont effectués
+tous les resultats des tests sont succés
 
 Environnement conteneurisé :
 Front-end, back-end et base de données MongoDB dans des conteneurs Docker distincts
@@ -54,8 +54,6 @@ Node.js (pour le développement local hors Docker, facultatif)
 Une interface en ligne de commande
 Étapes
 Cloner le Dépôt :
-bash
-
 git clone <url-du-dépôt>
 cd poker-project
 Configurer les Variables d'Environnement :
@@ -87,7 +85,14 @@ npm install
 npm test
 
 Tests E2E (avec Cypress) :
-Ce n'est pas prévu encore
+Commande	                     Description
+npx cypress open	             Ouvre l'interface graphique (Test Runner)
+npx cypress run	               Exécute les tests en mode headless (terminal)
+npx cypress run --browser      chrome	Lance les tests dans Chrome
+npx cypress run --headed	     Exécute en mode visible (non headless)
+npx cypress run --spec         "cypress/e2e/login.spec.js"	Exécute un fichier de test spécifique
+npx cypress run --record --key <your-key>	Enregistre les résultats sur le Dashboard Cypress
+npx cypress info	             Affiche les infos d'installation
 
 Arrêter l'Application :
 docker-compose down
