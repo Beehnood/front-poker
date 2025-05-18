@@ -12,6 +12,7 @@ import Game from './Game';
 import Partie from './Partie';
 import TableJeu from './TableDeJeu'
 import Regles from './Regles';
+import '../styles.css'; // Assurez-vous que ce chemin est correct
 
 function App() {
 

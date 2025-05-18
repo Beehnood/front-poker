@@ -1,108 +1,77 @@
-import { useState, useEffect } from "react";
-import "../styles.css";
-// import { set } from 'mongoose';
-// import Logout from './Logout'; // Assure-toi que le chemin est correct
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Connexion = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      setIsLoggedIn(true);
-      setSuccess("Vous êtes déjà connecté.");
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                navigate('/', { replace: true });
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [success, navigate]);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log('Form submitted with:', formData); // Debug log
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/signin', { // Changé de /login à /signin
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password,
+                }),
+            });
+            console.log('Fetch response:', response); // Debug log
+            const data = await response.json();
+            console.log('Fetch data:', data); // Debug log
+            if (response.ok) {
+                localStorage.setItem('access_token', data.access_token); // Assure-toi que ton backend renvoie un access_token
+                setSuccess('Connexion réussie !');
+                window.dispatchEvent(new Event('token-updated'));
+            } else {
+                setError(data.message || 'Erreur lors de la connexion');
+            }
+        } catch (err) {
+            console.error('Fetch error:', err); // Debug log
+            setError('Erreur réseau. Veuillez réessayer.');
+        }
+    };
+
+    if (success) {
+        return null;
     }
-  }, []);
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/signIn", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la connexion");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("access_token", data.access_token);
-      setIsLoggedIn(true);
-      setSuccess("Connexion réussie !");
-      console.log("Réponse API:", data);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Une erreur est survenue");
-      }
-    }
-  };
-
-  return (
-    <div className="container_form_wrapper">
-      <div className="container_form">
-        <h2>Connexion</h2>
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
-        {isLoggedIn ? (
-          <div>
-            <div>
-              <p>Vous êtes connecté !</p>
-            </div>
-            <button>
-              <a href="/Game">Aller au jeu</a>
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Mot de passe</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="input"
-              />
-            </div>
-            <p>
-              Je n'ai pas de compte ? <a href="/inscription">Inscrivez-vous</a>
-            </p>
-            <button type="submit" className="button">
-              submit
-            </button>
-          </form>
-        )}
-        {/* <p>Mot de passe oublié ? <a href='/forgot-password'>Réinitialiser</a></p> */}
-        {/* <p>Pas encore inscrit ? <a href='/inscription'>Inscrivez-vous</a></p> */}
-        {/* <Logout onLogout={() => setIsLoggedIn(false)} /> */}
-      </div>
-    </div>
-  );
+    return (
+        <div className="container_form_wrapper">
+            <h2>Connexion</h2>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Email"
+                />
+                <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Mot de passe"
+                />
+                <button type="submit">Se connecter</button>
+            </form>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {success && <p style={{ color: 'green' }}>{success}</p>}
+        </div>
+    );
 };
 
 export default Connexion;

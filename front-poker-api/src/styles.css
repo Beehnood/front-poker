@@ -27,7 +27,7 @@ html, body {
     background: var(--ter);
 }
 
-.container_form_wrapper {
+/* .container_form_wrapper {
     position: absolute;
     display: flex;
     justify-content: center;
@@ -42,14 +42,11 @@ html, body {
 .container_form{
     max-width: 400px;
     width: 100%;
-    margin: 0 auto; /* Supprimez la marge verticale */
+    margin: 0 auto; 
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
-    text-align: center;
-}
+    text-align: end;
+} */
 .container_form .content_form{
     text-align: left;
     margin-bottom: 20px;
