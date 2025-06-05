@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'URL_DE_VOTRE_DEPOT_GIT'
+                git branch: 'main', url: 'https://github.com/Beehnood/front-poker.git'
             }
         }
         
